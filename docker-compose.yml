@@ -1,0 +1,43 @@
+version: '3.6'
+services:
+
+    app:
+        image: "cptactionhank/atlassian-jira:latest"
+        restart: unless-stopped
+        depends_on:
+            - db
+        networks:
+            - net
+        ports:
+            - "8080:8080"
+        volumes:
+            - "jira-home:/var/atlassian/jira"
+            - "jira-logs:/opt/atlassian/jira/logs"
+
+    db:
+        image: "postgres:latest"
+        restart: unless-stopped
+        networks:
+            net:
+                aliases:
+                    - postgres
+        volumes:
+            - "db-data:/var/lib/postgresql/data"
+        environment:
+            - "POSTGRES_USER=jira"
+            - "POSTGRES_DB=jira"
+            - POSTGRES_PASSWORD
+        secrets:
+            - POSTGRES_PASSWORD
+
+networks:
+    net:
+
+volumes:
+    jira-home:
+    jira-logs:
+    db-data:
+
+secrets:
+    POSTGRES_PASSWORD:
+        file: ./secret-postgres-password.txt
